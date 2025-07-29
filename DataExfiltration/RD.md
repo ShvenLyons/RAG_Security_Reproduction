@@ -35,7 +35,7 @@ arXiv preprint [arXiv:2402.17840](https://arxiv.org/abs/2402.17840)
 
 ###  复现结果
 
-| 指标类别   | Qwen3-14B       | Qwen3-8B        | Qwen3-4B        | Qwen2.5-7B      |
+| 指标类别   | Qwen3-14B | Qwen3-14B | Qwen3-8B | Qwen3-8B | Qwen3-4B | Qwen3-4B | Qwen2.5-7B | Qwen2.5-7B |
 |------------|------------------|------------------|------------------|------------------|
 |            | Output-1 | Output-2 | Output-1 | Output-2 | Output-1 | Output-2 | Output-1 | Output-2 |
 | ROUGE-L    | 0.4752   | 0.4869   | 0.4518   | 0.4584   | 0.4725   | 0.4620   | 0.7489   | 0.8221   |
