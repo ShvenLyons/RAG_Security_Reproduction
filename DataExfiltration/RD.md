@@ -1,5 +1,7 @@
 #  Follow My Instruction and Spill the Beans
 
+## ./SpillTheBeans
+
 **论文信息**  
 Qi, Z., Zhang, H., Xing, E., Kakade, S., & Lakkaraju, H. (2024).  
 *Follow my instruction and spill the beans: Scalable data extraction from retrieval-augmented generation systems.*  
