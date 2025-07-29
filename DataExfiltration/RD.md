@@ -17,7 +17,7 @@ arXiv preprint [arXiv:2402.17840](https://arxiv.org/abs/2402.17840)
 | 切分方式       | 256 token / 128 overlap |       256/128       |
 | 索引方式       | Top-1（k = 1）           |     Top-1           |
 | 数据库         | Lucene-BM25             |          BM25       |
-| 攻击对象       | RICLM 的输入文本 | GPT 的上下文                 |
+| 攻击对象       | RICLM 的输入文本 | GPT 的用户提示                |
 | Query 生成方式 | WikiQA 数据集中挑选的 250 条开放域问答问题  | GPT 生成 100 条覆盖各章节问题，再迭代抽取 |
 
 ---
