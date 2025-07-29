@@ -57,3 +57,14 @@ arXiv preprint [arXiv:2402.17840](https://arxiv.org/abs/2402.17840)
 - **未包含原项目中的完整评估代码**，仅保留关键指标计算与必要函数。
 
 如需完整对照实验，请参考原项目仓库。
+
+---
+
+#  The Good and The Bad
+
+## ./GoodAndBad
+
+**论文信息**  
+Zeng, Shenglai, Jiankun Zhang, Pengfei He, Yue Xing, Yiding Liu, Han Xu, Jie Ren et al. (2024). 
+*The good and the bad: Exploring privacy issues in retrieval-augmented generation (rag).*
+arXiv preprint [arXiv:2402.16893](https://arxiv.org/abs/2402.16893)
