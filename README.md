@@ -8,10 +8,10 @@
 
 | 文件夹名称            | 攻击类别       | 功能描述                                                                 |
 |-----------------------|----------------|--------------------------------------------------------------------------|
-| `DataExfiltration/`   | 数据提取攻击   | 复现基于指令/Query 的知识库内容泄露攻击。详见 [`RD.md`](./DataExfiltration/RD.md)。 |
-| `PoisonAttack/`       | 检索投毒攻击   | 实现检索环节的后门/污染攻击，包括 Chunk Injection、Embedding Manipulation 等策略。 |
-| `MembershipInference/`| 成员推理攻击   | 用于实现针对嵌入空间或生成响应的成员信息泄露攻击实验。               |
-| `PromptInjection/`    | 提示注入攻击   | 复现提示污染（例如 Jailbreak Prompt）对 RAG 检索与生成的劫持能力。   |
+| `DataExfiltration/`   | 数据提取   | 复现基于指令/Query 的知识库内容泄露攻击。详见 [`RD.md`](./DataExfiltration/RD.md)。 |
+| `PoisonAttack/`       | 检索投毒   | 实现检索环节的后门/污染攻击，包括 Chunk Injection、Embedding Manipulation 等策略。 |
+| `MembershipInference/`| 成员推理   | 用于实现针对嵌入空间或生成响应的成员信息泄露攻击实验。               |
+| `PromptInjection/`    | 提示注入   | 复现提示污染（例如 Jailbreak Prompt）对 RAG 检索与生成的劫持能力。   |
 
 ---
 
