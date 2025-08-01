@@ -63,7 +63,7 @@ REST MODEL
 
 注：模型编号如 `Qwen3-14B-1` 与 `Qwen3-14B-2` 中的数字后缀代表 Prompt 插入位置：`1 = beginning`，`2 = end`。
 
-<img src="image/Spill_beginning_end.jpg" width="50%">
+<img src="images/Spill_beginning_end.jpg" width="50%">
 
 ---
 
