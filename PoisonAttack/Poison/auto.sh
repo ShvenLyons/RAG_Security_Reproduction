@@ -6,7 +6,6 @@ echo "========  Auto pipeline started at $(date)  ========" | tee -a "$LOGFILE"
 run_step () {
   local name="$1"; shift
   echo -e "\n>>> [$name] $(date)" | tee -a "$LOGFILE"
-  # 用 tee 实时把 stdout + stderr 写入日志
   "$@" 2>&1 | tee -a "$LOGFILE"
 }
 # 1) 生成对抗样本、污染语料
