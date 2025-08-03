@@ -5,11 +5,6 @@ from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 def build_id_map(meta_path: str) -> Dict[int, Dict[str, str]]:
-    """
-    把 doc_id ↔ int_id ↔ meta 建立映射:
-      int_id = int(md5(doc_id)[:8], 16)
-    返回: {int_id: {"id": doc_id, "title": ..., "text": ...}}
-    """
     id_map = {}
     with open(meta_path, encoding="utf-8") as f:
         for line in f:
