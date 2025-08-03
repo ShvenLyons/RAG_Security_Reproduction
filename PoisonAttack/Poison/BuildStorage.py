@@ -49,7 +49,7 @@ def chunk_tokens(text: str, tokenizer, max_tokens: int = 512, stride: int = 0):
 def build_index(data_path: str, model_path: str, output_dir: str, *, batch_size: int = 256):
     """建立持久 FAISS 索引
     data_path : str
-        路径下需含 corpus.jsonl
+        路径下需含语料库 corpus.jsonl
     model_path : str
         SentenceTransformer/Contriever 模型权重目录 / HuggingFace 名称
     output_dir : str
