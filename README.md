@@ -26,4 +26,5 @@
 ##  当前TODO
 
 - [ ] 整理 The Good and The Bad 结果；
-- [ ] 复现 PoisonedRAG ；
+- [√] 复现 PoisonedRAG ；
+- [ ]
