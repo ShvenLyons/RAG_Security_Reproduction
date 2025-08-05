@@ -4,20 +4,17 @@ from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-
-# ---------- 工具函数 ----------
 def build_id_map(meta_path: str) -> Dict[int, Dict[str, str]]:
     id_map = {}
     with open(meta_path, encoding="utf-8") as f:
         for line_no, line in enumerate(f):
             obj = json.loads(line)
-            id_map[line_no] = obj          # 关键改动：用行号作 key
+            id_map[line_no] = obj        
     return id_map
-
 
 def faiss_search(index: faiss.Index, id_map: Dict[int, Dict[str, str]],
                  embedder: SentenceTransformer, query: str, k: int) -> Tuple[List[str], List[str]]:
-    """向量检索，返回 doc_ids 与其文本内容（最多 k 条可用结果）"""
+    """向量检索，最多 k 条可用结果"""
     emb = embedder.encode([query], convert_to_numpy=True).astype("float32")
     _, idx = index.search(emb, k)
     doc_ids, contexts = [], []
@@ -28,10 +25,9 @@ def faiss_search(index: faiss.Index, id_map: Dict[int, Dict[str, str]],
             contexts.append(meta["text"])
     return doc_ids, contexts
 
-
 def answer_llm(tok: AutoTokenizer, llm: AutoModelForCausalLM,
                query: str, contexts: List[str], max_toks: int) -> str:
-    """拼 Prompt → 生成 concise answer"""
+    """ Prompt 拼接 → 生成 concise answer"""
     prompt = (
         "Contexts (use them strictly):\n"
         + "\n".join(contexts)
@@ -51,30 +47,19 @@ def answer_llm(tok: AutoTokenizer, llm: AutoModelForCausalLM,
     gen_ids = out_ids[prompt_len:]
     return tok.decode(gen_ids, skip_special_tokens=True).strip()
 
-
-# ---------- 主流程 ----------
 def main():
     parser = argparse.ArgumentParser(
         description="Validate RAG on clean vs poison indices"
     )
-    parser.add_argument("--dataset", default="hotpotqa",
-                        help="BEIR dataset name (also used in paths)")
-    parser.add_argument("--adv_json", default=None,
-                        help="Path to adv_targeted_results/<dataset>.json "
-                             "(auto-fill if not provided)")
-    parser.add_argument("--clean_root", default="./Storage/contriever",
-                        help="Root dir that contains clean index/meta")
-    parser.add_argument("--poison_root", default="./Storage/Poison/contriever",
-                        help="Root dir that contains poisoned index/meta")
-    parser.add_argument("--model_emb", default="/root/autodl-tmp/MODEL/contriever",
-                        help="SentenceTransformer embedding model path")
-    parser.add_argument("--model_llm", default="/root/autodl-tmp/MODEL/Llama-2-7b-chat-hf",
-                        help="Causal-LM path for answer generation")
+    parser.add_argument("--dataset", default="hotpotqa", help="BEIR dataset name (also used in paths)")
+    parser.add_argument("--adv_json", default=None, help="Path to adv_targeted_results/<dataset>.json (auto-fill if not provided)")
+    parser.add_argument("--clean_root", default="./Storage/contriever", help="Root dir that contains clean index/meta")
+    parser.add_argument("--poison_root", default="./Storage/Poison/contriever", help="Root dir that contains poisoned index/meta")
+    parser.add_argument("--model_emb", default="/root/autodl-tmp/MODEL/contriever", help="SentenceTransformer embedding model path")
+    parser.add_argument("--model_llm", default="/root/autodl-tmp/MODEL/Llama-2-7b-chat-hf", help="Causal-LM path for answer generation")
     parser.add_argument("--top_k", type=int, default=5, help="# contexts retrieved")
-    parser.add_argument("--max_tokens", type=int, default=32,
-                        help="max_new_tokens for generation")
-    parser.add_argument("--output", default=None,
-                        help="Output JSON path (auto-fill if not provided)")
+    parser.add_argument("--max_tokens", type=int, default=32, help="max_new_tokens for generation")
+    parser.add_argument("--output", default=None, help="Output JSON path (auto-fill if not provided)")
     args = parser.parse_args()
 
     DATASET     = args.dataset
