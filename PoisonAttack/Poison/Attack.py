@@ -14,6 +14,59 @@ from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
+# HotFlip 攻击
+def hotflip_attack(embedder, query: str, text: str, iters=40, max_changes=30, target_sim=0.96, patience=4, min_delta=1e-4, mask_ratio=1.0) -> str:
+    tok = embedder.tokenizer
+    W = embedder.auto_model.embeddings.word_embeddings.weight
+    q_vec = embedder.encode([query], convert_to_tensor=True)
+    doc_ids = tok(text, return_tensors="pt", add_special_tokens=False).input_ids.to(embedder.device)
+    doc_ids.requires_grad_(True)
+    replace_mask = torch.ones_like(doc_ids, dtype=torch.bool)
+    if mask_ratio < 1.0:
+        keep = torch.rand_like(replace_mask, dtype=torch.float) > mask_ratio
+        replace_mask &= keep
+    last_sim, no_imp_rounds, n_changes = 0.0, 0, 0
+    for step in range(iters):
+        doc_emb = W[doc_ids].mean(dim=1)
+        sim = torch.cosine_similarity(doc_emb, q_vec, dim=-1)
+        loss = -sim.mean()
+        loss.backward()
+        grad = doc_ids.grad
+        delta = torch.einsum("l d , v d -> l v", grad[0], W)
+        delta[~replace_mask[0]] = -1e9
+        flat_idx = torch.argmax(delta).item()
+        pos, new_token = divmod(flat_idx, W.size(0))
+        if doc_ids[0, pos].item() == new_token:
+            break
+        doc_ids[0, pos] = new_token
+        n_changes += 1
+        if n_changes >= max_changes:
+            break
+        cur_sim = sim.item()
+        if cur_sim - last_sim < min_delta:
+            no_imp_rounds += 1
+        else:
+            no_imp_rounds = 0
+        last_sim = cur_sim
+        if cur_sim >= target_sim or no_imp_rounds >= patience:
+            break
+        doc_ids.grad.zero_()
+    return tok.decode(doc_ids[0], skip_special_tokens=True)
+
+# 直接污染向量数据库--- index 模式 ---
+def patch_faiss_index(index_path, meta_path, adv_docs, embedder):
+    index = faiss.read_index(index_path)
+    new_meta_lines = []
+    for doc_id, meta in tqdm(adv_docs, desc="→ FAISS"):
+        vec = embedder.encode([meta["text"]], convert_to_numpy=True).astype("float32")
+        int_id = int(hashlib.md5(doc_id.encode()).hexdigest()[:8], 16)
+        index.add_with_ids(vec, np.array([int_id], dtype=np.int64))
+        new_meta_lines.append(json.dumps({"id": doc_id, **meta}, ensure_ascii=False))
+    faiss.write_index(index, index_path)
+    with open(meta_path, "a", encoding="utf-8") as fw:
+        fw.write("\n".join(new_meta_lines) + "\n")
+    print(f"[✓] Index patched & meta appended → {index_path}")
+
 def _save_results(path: str, data: Dict[str, dict]):
     pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
