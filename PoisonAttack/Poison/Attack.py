@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple, DefaultDict
 from collections import defaultdict
 import random
 
-import faiss 
+import faiss  # downstream HotFlip option
 import numpy as np
 import torch
 from tqdm import tqdm
@@ -61,25 +61,35 @@ def llm_setup(model_name_or_path: str):
 def llm_generate(tok, model, prompt: str, max_new: int = 128) -> str:
     """Generate while stripping the prompt echo."""
     inputs = tok(prompt, return_tensors="pt").to(model.device)
-    p_len = inputs.input_ids.shape[1]
+    prompt_len = inputs["input_ids"].shape[-1]
     with torch.no_grad():
-        out = model.generate(**inputs, max_new_tokens=max_new)
-    gen_ids = out[0][p_len:]
+        out_ids = model.generate(
+            **inputs,
+            max_new_tokens=max_new,
+            pad_token_id=tok.eos_token_id or tok.pad_token_id
+        )[0]
+    gen_ids = out_ids[prompt_len:]       
     return tok.decode(gen_ids, skip_special_tokens=True).strip()
 
 # 生成正确答案（比对有无上下文情况，原代码中最大token为150，此处为32）
 def generate_correct_answer(tok, model, query: str, contexts: List[str]) -> str:
-    prompt_no = f"Answer concisely: What is the answer to the question: {query}"
+    prompt_no = (
+        "Answer concisely (≤32 tokens):\n"
+        f"Question: {query}\n"
+        "Answer:"
+    )
     resp_no = llm_generate(tok, model, prompt_no, 32)
 
     ctx_block = "\n".join(contexts)
     prompt_ctx = (
-        "Answer the question **strictly** based on the following contexts. "
-        "Respond with a concise answer within 32 tokens only.\n\n"
-        f"Question: {query}\n\nContexts:\n{ctx_block}"
+        "Contexts (use them strictly):\n"
+        + ctx_block + "\n\n"
+        "Now answer the following question concisely (≤32 tokens) based ONLY on the contexts above.\n"
+        f"Question: {query}\n"
+        "Answer:"
     )
     resp_ctx = llm_generate(tok, model, prompt_ctx, 32)
-
+    
     low_no, low_ctx = resp_no.lower(), resp_ctx.lower()
     if low_no in low_ctx:
         return resp_no
@@ -201,7 +211,6 @@ def build_poisoned_corpus(
     print(f"[✓] Result JSON      →  {out_results}")
     print(f"    Original docs: {len(corpus):,} | Adversarial docs: {len(adv_docs):,}\n")
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default="msmarco", help ="nq / hotpotqa / msmarco")
@@ -225,7 +234,6 @@ def main():
         attack_method=args.attack_method,
         adv_per_query=args.adv_per_query,
     )
-
 
 if __name__ == "__main__":
     main()
