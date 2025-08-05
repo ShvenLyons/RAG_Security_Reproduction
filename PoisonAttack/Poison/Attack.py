@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple, DefaultDict
 from collections import defaultdict
 import random
 
-import faiss  # downstream HotFlip option
+import faiss
 import numpy as np
 import torch
 from tqdm import tqdm
