@@ -25,6 +25,6 @@
 
 ##  当前TODO
 
-- [ ] 整理 The Good and The Bad 结果；
+- [√] 整理 The Good and The Bad 结果；
 - [√] 复现 PoisonedRAG ；
-- [ ]
+- [ ] 复现和尝试 RAG on Graph, 从 LightRAG 开始，初版容易实现
